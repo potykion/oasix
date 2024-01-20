@@ -3,7 +3,7 @@ from typing import List
 import attr
 import pytest
 
-from oasix.api import Schema, Req, MakeOpenApi
+from oasix.api import make_openapi
 
 
 @attr.s
@@ -18,43 +18,36 @@ class SelectOption(object):
 
 
 @pytest.mark.parametrize(
-    [
-        "raw_sch",
-    ],
+    ["raw_sch"],
     [
         [
-            Schema(
-                req=Req(
-                    query=SearchQuery,
-                ),
-                resp={200: List[SelectOption]},
-            )
-        ],
-        [
-            Schema(
-                req={
-                    "query": {"q": str},
-                },
-                resp={
+            dict(
+                query={"q": str},
+                responses={
                     200: List[{"value": int, "label": str}],
                 },
             )
         ],
+        [
+            dict(
+                query=SearchQuery,
+                responses={200: List[SelectOption]},
+            )
+        ],
     ],
 )
-def test_MakeOpenApi(raw_sch):
-    sch = MakeOpenApi()(raw_sch)
+def test_make_openapi(raw_sch):
+    sch = make_openapi(**raw_sch)
     expected_schema = {
         "parameters": [
             {
                 "name": "q",
                 "in": "query",
-                "schema": {"type": "integer"},
+                "schema": {"type": "string"},
             }
         ],
         "responses": {
             "200": {
-                "description": "A list of objects",
                 "content": {
                     "application/json": {
                         "schema": {
@@ -65,7 +58,6 @@ def test_MakeOpenApi(raw_sch):
                                     "value": {"type": "integer"},
                                     "label": {"type": "string"},
                                 },
-                                "required": ["value", "label"],
                             },
                         }
                     }
