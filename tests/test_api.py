@@ -14,7 +14,7 @@ class SearchQuery(object):
 @attr.s
 class SelectOption(object):
     value = attr.ib(type=int)
-    label = attr.ib(type=str)
+    label = attr.ib(type=str, metadata={"description"})
 
 
 @pytest.mark.parametrize(
